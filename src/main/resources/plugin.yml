@@ -1,22 +1,20 @@
 name: ${project.name}
 description: ${project.description}
-main: org.retromc.templateplugin.TemplatePlugin
+main: org.betamc.bmcshield.BMCShield
 version: ${project.version}
 authors:
-  - JohnyMuffin
-softdepend:
-  - Essentials
+  - SvGaming
 
 commands:
-  testcommand:
-    description: A test command for the plugin.
-    usage: /<command> [args]
-    aliases: [tc]
-    permission: myplugin.testcommand
+  bmcshield:
+    description: A command to add or remove players from the BMCShield list.
+    usage: /<command> [add/remove]
+    aliases: [bmcs]
+    permission: bmcshield.bmcshield
     permission-message: You do not have permission to use this command.
 
 permissions:
-  myplugin.*:
+  bmcshield.*:
     description: Gives access to all myplugin commands.
     children:
-      myplugin.testcommand: true
+      bmcshield.bmcshield: true
