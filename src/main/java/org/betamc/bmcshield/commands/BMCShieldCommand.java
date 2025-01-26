@@ -1,93 +1,92 @@
 package org.betamc.bmcshield.commands;
 
-import org.betamc.bmcshield.Config;
+import org.betamc.bmcshield.BMCShield;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.betamc.bmcshield.BMCShield;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class BMCShieldCommand implements CommandExecutor {
 
-    private final File file;
-    private Config config;
-
-    public BMCShieldCommand(BMCShield plugin) {
-        this.file = plugin.getListFile();
-        this.config = plugin.getConfig();
-    }
-
-    private void reloadConfigFile() {
-        BMCShield bmcClass = new BMCShield();
-        bmcClass.loadListFile();
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("bmcshield.bmcshield") && !sender.isOp()) {
-            sender.sendMessage("You do not have permission to execute this command.");
-            return true;
-        }
+        String addSyntax = "§c/bmcshield add <player>";
+        String removeSyntax = "§c/bmcshield remove <player>";
+        String reloadSyntax = "§c/bmcshield reload";
 
         if (args.length < 1) {
-            sender.sendMessage(ChatColor.RED + "Not enough arguments.");
-            sender.sendMessage(ChatColor.RED + "Syntax: /bmcshield <add/remove/reloadlist/reloadconfig> [player]");
+            sender.sendMessage("§cInvalid syntax.");
+            sender.sendMessage(addSyntax);
+            sender.sendMessage(removeSyntax);
+            sender.sendMessage(reloadSyntax);
             return true;
         }
 
-        String playerName;
-
-        /* TODO
         switch (args[0].toLowerCase()) {
             case "add":
-                playerName = args[1];
-
-                if (playerName.length() <= 16) {
-                    try {
-                        FileWriter fw = new FileWriter(file, true);
-                        fw.write("\n" + playerName);
-                        fw.close();
-                        sender.sendMessage(ChatColor.GREEN + "Added " + playerName + " to the kick list.");
-                        BMCShield bmcClass = new BMCShield();
-                        bmcClass.loadListFile();
-                        Player player = Bukkit.getServer().getPlayer(playerName);
-                        if (player != null) {
-                            player.kickPlayer(ChatColor.RED + config.getConfigString("settings.kick-message.value"));
-                            sender.sendMessage(ChatColor.GREEN + "Player was auto-kicked as they were online.");
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                if (args.length < 2) {
+                    sender.sendMessage("§cInvalid syntax.");
+                    sender.sendMessage(addSyntax);
+                    return true;
                 }
-                else {
-                    sender.sendMessage(ChatColor.RED + "The username " + playerName + " is too long (max username length is 16 characters).");
-                }
-
-                reloadConfigFile();
-                sender.sendMessage(ChatColor.GREEN + "Reloaded player list.");
+                addToList(sender, args[1]);
                 break;
             case "remove":
-                playerName = args[1];
-                sender.sendMessage(ChatColor.RED + "Not implemented yet. Please delete the entry in the list.txt file and run /bmcshield reloadlist");
+                if (args.length < 2) {
+                    sender.sendMessage("§cInvalid syntax.");
+                    sender.sendMessage(removeSyntax);
+                    return true;
+                }
+                removeFromList(sender, args[1]);
                 break;
-            case "reloadlist":
-                reloadConfigFile();
-                sender.sendMessage(ChatColor.GREEN + "Reloaded player list.");
+            case "reload":
+                reloadList(sender);
                 break;
             default:
-                sender.sendMessage(ChatColor.RED + "Invalid argument.");
-                sender.sendMessage(ChatColor.RED + "Syntax: /bmcshield <add/remove/reloadlist> [player]");
-                return false;
+                sender.sendMessage("§cInvalid syntax.");
+                sender.sendMessage(addSyntax);
+                sender.sendMessage(removeSyntax);
+                sender.sendMessage(reloadSyntax);
         }
 
-         */
-
         return true;
+    }
+
+    private void addToList(CommandSender sender, String name) {
+        name = name.toLowerCase();
+        Pattern namePattern = Pattern.compile("^[a-z0-9_]{3,16}$");
+        if (!namePattern.matcher(name).matches()) {
+            sender.sendMessage("§cThe username " + name + " is invalid.");
+            return;
+        }
+
+        BMCShield.getKickList().add(name);
+        BMCShield.saveKickList();
+        sender.sendMessage("§aAdded " + name + " to the kick list.");
+        Player player = Bukkit.getPlayer(name);
+        if (player != null) {
+            player.kickPlayer(BMCShield.getConfig().getConfigString("settings.kick-message.value"));
+            sender.sendMessage("§7" + player.getName() + " was auto-kicked as they were online.");
+        }
+    }
+
+    private void removeFromList(CommandSender sender, String name) {
+        name = name.toLowerCase();
+        boolean removed = BMCShield.getKickList().remove(name);
+        if (removed) {
+            BMCShield.saveKickList();
+            sender.sendMessage("§aRemoved " + name + " from the kick list.");
+        } else {
+            sender.sendMessage("§cCould not find " + name + " in the kick list.");
+        }
+    }
+
+    private void reloadList(CommandSender sender) {
+        BMCShield.saveKickList();
+        BMCShield.loadKickList();
+        sender.sendMessage("§aReloaded the kick list.");
     }
 }

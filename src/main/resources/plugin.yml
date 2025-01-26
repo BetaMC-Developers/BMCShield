@@ -4,17 +4,11 @@ main: org.betamc.bmcshield.BMCShield
 version: ${project.version}
 authors:
   - SvGaming
+  - zavdav
 
 commands:
   bmcshield:
-    description: A command to add or remove players from the BMCShield list.
-    usage: /bmcshield <add/remove/reloadlist> [player]
+    description: Manages the BMCShield kick list.
+    usage: /bmcshield
     aliases: [bmcs]
-    permission: bmcshield.bmcshield
-    permission-message: You do not have permission to use this command.
-
-permissions:
-  bmcshield.*:
-    description: Gives access to all myplugin commands.
-    children:
-      bmcshield.bmcshield: true
+    permission: bmcshield.use
