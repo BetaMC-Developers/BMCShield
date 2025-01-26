@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.betamc.bmcshield.commands.BMCShieldCommand;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,7 +16,36 @@ public class BMCShield extends JavaPlugin {
     private String pluginName;
     private PluginDescriptionFile pdf;
     private Config configuration;
-    private BufferedReader fileReader;
+    private static File file;
+    private ArrayList<String> readerList;
+
+
+    public void loadListFile() {
+        BufferedReader fileReader;
+        file = new File(getDataFolder(), "list.txt");
+        if (!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            fileReader = new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        readerList = new ArrayList<>();
+        String line;
+        while(true) {
+            try {
+                if ((line = fileReader.readLine()) == null) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            readerList.add(line);
+        }
+    }
 
     @Override
     public void onEnable() {
@@ -28,19 +58,7 @@ public class BMCShield extends JavaPlugin {
         // Load configuration
         configuration = new Config(this, new File(getDataFolder(), "config.yml")); // Load the configuration file from the plugin's data folder
 
-        File f = new File(getDataFolder(), "list.txt");
-        if (!f.exists()){
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        try {
-            fileReader = new BufferedReader(new FileReader(f));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        loadListFile();
 
         // Register the commands
         getCommand("bmcshield").setExecutor(new BMCShieldCommand(this));
@@ -66,8 +84,7 @@ public class BMCShield extends JavaPlugin {
         Bukkit.getLogger().log(level, "[" + plugin.getDescription().getName() + "] " + message);
     }
 
-    public Config getConfig() {
-        return configuration;
-    }
-    public BufferedReader getListReader() { return fileReader; }
+    public Config getConfig() { return configuration; }
+    public ArrayList<String> getReaderList() { return readerList; }
+    public File getListFile() { return file; }
 }

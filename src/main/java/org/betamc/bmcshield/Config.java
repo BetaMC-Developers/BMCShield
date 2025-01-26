@@ -35,7 +35,7 @@ public class Config extends Configuration {
     /**
      * Reloads the configuration by loading the file, writing defaults, and saving changes.
      */
-    private void reload() {
+    public void reload() {
         this.load();
         this.write();
         this.save();

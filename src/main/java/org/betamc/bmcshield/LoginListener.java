@@ -6,26 +6,25 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class LoginListener implements Listener {
     private BMCShield plugin;
     private Config config;
-    private BufferedReader fileReader;
+    private ArrayList<String> readerList;
 
     // Constructor to link the plugin instance
     public LoginListener(BMCShield plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfig();
-        this.fileReader = plugin.getListReader();
+        this.readerList = plugin.getReaderList();
     }
 
     @EventHandler(priority = Event.Priority.Normal)
     public void onPlayerLogin(PlayerLoginEvent event) throws IOException {
-        String line;
-        while ((line = fileReader.readLine()) != null) {
-            if (line.equalsIgnoreCase(event.getPlayer().getName())) {
+        for (int i = 0; i < readerList.size(); i++) {
+            if (readerList.get(i).equalsIgnoreCase(event.getPlayer().getName())) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, ChatColor.RED + config.getConfigString("settings.kick-message.value"));
             }
         }
