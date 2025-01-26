@@ -30,12 +30,6 @@ public class BMCShieldCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Check if the sender is a player
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("This command can only be executed by players.");
-            return true;
-        }
-
         if (!sender.hasPermission("bmcshield.bmcshield") && !sender.isOp()) {
             sender.sendMessage("You do not have permission to execute this command.");
             return true;
@@ -49,6 +43,7 @@ public class BMCShieldCommand implements CommandExecutor {
 
         String playerName;
 
+        /* TODO
         switch (args[0].toLowerCase()) {
             case "add":
                 playerName = args[1];
@@ -90,6 +85,8 @@ public class BMCShieldCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Syntax: /bmcshield <add/remove/reloadlist> [player]");
                 return false;
         }
+
+         */
 
         return true;
     }

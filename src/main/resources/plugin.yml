@@ -8,7 +8,7 @@ authors:
 commands:
   bmcshield:
     description: A command to add or remove players from the BMCShield list.
-    usage: /<command> [add/remove]
+    usage: /bmcshield <add/remove/reloadlist> [player]
     aliases: [bmcs]
     permission: bmcshield.bmcshield
     permission-message: You do not have permission to use this command.
